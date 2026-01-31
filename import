@@ -1,0 +1,72 @@
+{
+  "imports": {
+    "phoneProxy": {
+      "configFile": "./llm-proxy-bridge-complete.json",
+      "typescriptUsage": {
+        "example": [
+          "// app/config.ts",
+          "import config from './llm-proxy-bridge-complete.json';",
+          "",
+          "export const NETWORK_PORT = config.configuration.networking.port;",
+          "export const LLM_APPS = config.llmApps;",
+          "",
+          "export function getAppConfig(appId: string) {",
+          "  return (LLM_APPS as any)[appId] || null;",
+          "}"
+        ]
+      },
+      "serverUsage": {
+        "example": [
+          "// app/services/server.ts",
+          "import config from '../llm-proxy-bridge-complete.json';",
+          "",
+          "const PORT = config.configuration.networking.port;",
+          "const RESPONSE_TIMEOUT = config.configuration.timeouts.requestTimeout;",
+          "",
+          "const APP_CONFIGS = config.llmApps;"
+        ]
+      },
+      "uiUsage": {
+        "example": [
+          "// app/(tabs)/index.tsx",
+          "import config from '../llm-proxy-bridge-complete.json';",
+          "",
+          "const llmApps = config.llmApps;",
+          "",
+          "const appList = Object.entries(llmApps).map(([id, app]: [string, any]) => ({",
+          "  id,",
+          "  name: app.name,",
+          "  features: app.features,",
+          "}));"
+        ]
+      }
+    },
+    "desktopClient": {
+      "configFile": "./llm-proxy-bridge-complete.json",
+      "typescriptUsage": {
+        "example": [
+          "// src/config.ts",
+          "import config from '../llm-proxy-bridge-complete.json';",
+          "",
+          "export const DISCOVERY_METHODS =",
+          "  config.desktopClient.components.connectionManager.discoveryMethods;",
+          "",
+          "export const HTTP_PORT = config.configuration.networking.port;",
+          "",
+          "export const LLM_APPS = config.llmApps;"
+        ]
+      },
+      "extensionUsage": {
+        "example": [
+          "// src/extension.ts",
+          "import { LLM_APPS } from './config';",
+          "",
+          "function getAppDisplayName(appId: string): string {",
+          "  const app: any = (LLM_APPS as any)[appId];",
+          "  return app ? app.name : appId;",
+          "}"
+        ]
+      }
+    }
+  }
+}
