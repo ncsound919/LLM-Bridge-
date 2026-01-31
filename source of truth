@@ -1,0 +1,457 @@
+The JSON is not actually saved anywhere on your machine yet—it exists only as text in our conversation.
+
+Here’s the full single JSON blob you can copy into a file named `llm-proxy-bridge-complete.json` in your project:
+
+```json
+{
+  "project": {
+    "name": "LLM Proxy Bridge",
+    "version": "1.0.0",
+    "description": "Universal mobile-to-desktop LLM routing system",
+    "architecture": "Phone Proxy (Expo) + Desktop Client (VS Code) + Share Extension",
+    "lastUpdated": "2026-01-31"
+  },
+  "configuration": {
+    "networking": {
+      "port": 8080,
+      "protocols": ["http", "websocket"],
+      "discovery": ["mdns", "usb-adb", "network-scan"],
+      "security": {
+        "authMethod": "shared-secret",
+        "secretGeneration": "uuid-v4",
+        "qrCodeSetup": true,
+        "headerName": "x-proxy-auth"
+      }
+    },
+    "timeouts": {
+      "requestTimeout": 120000,
+      "connectionProbe": 3000,
+      "responsePolling": 1000,
+      "heartbeat": 30000,
+      "websocketReconnect": 5000
+    },
+    "responseCapture": {
+      "methods": ["share-extension", "clipboard-polling", "ocr"],
+      "priority": ["share", "ocr", "clipboard"],
+      "clipboardPollingInterval": 500,
+      "clipboardMinLength": 20,
+      "shareExtensionAutoClose": 1500
+    }
+  },
+  "llmApps": {
+    "perplexity": {
+      "name": "Perplexity",
+      "schemes": {
+        "ios": "perplexity://query?q=",
+        "android": "perplexity://query?q="
+      },
+      "packageId": {
+        "android": "com.perplexity.app",
+        "ios": "com.perplexity.ios"
+      },
+      "responseMethods": ["share", "clipboard"],
+      "estimatedResponseTime": 3000,
+      "clipboardPattern": "^.{20,}",
+      "shareTimeout": 30000,
+      "features": ["text", "search", "citations"]
+    },
+    "chatgpt": {
+      "name": "ChatGPT",
+      "schemes": {
+        "ios": "chatgpt://chat?text=",
+        "android": "com.openai.chatgpt://chat?text="
+      },
+      "packageId": {
+        "android": "com.openai.chatgpt",
+        "ios": "com.openai.chatgpt"
+      },
+      "responseMethods": ["share"],
+      "estimatedResponseTime": 5000,
+      "shareTimeout": 45000,
+      "features": ["text", "conversation", "code"]
+    },
+    "copilot": {
+      "name": "GitHub Copilot",
+      "schemes": {
+        "ios": "githubcopilot://prompt?q=",
+        "android": "githubcopilot://prompt?q="
+      },
+      "packageId": {
+        "android": "com.github.copilot",
+        "ios": "com.github.copilot"
+      },
+      "responseMethods": ["share", "clipboard"],
+      "estimatedResponseTime": 4000,
+      "shareTimeout": 30000,
+      "features": ["code", "text"]
+    },
+    "claude": {
+      "name": "Claude",
+      "schemes": {
+        "ios": "claude://compose?text=",
+        "android": "claude://compose?text="
+      },
+      "packageId": {
+        "android": "ai.anthropic.claude",
+        "ios": "ai.anthropic.claude"
+      },
+      "responseMethods": ["share"],
+      "estimatedResponseTime": 6000,
+      "shareTimeout": 45000,
+      "features": ["text", "reasoning", "analysis"]
+    },
+    "bard": {
+      "name": "Google Gemini/Bard",
+      "schemes": {
+        "ios": "googleassistant://send-text?text=",
+        "android": "com.google.android.apps.googleassistant://send-text?text="
+      },
+      "packageId": {
+        "android": "com.google.android.apps.googleassistant",
+        "ios": "com.google.GoogleAssistant"
+      },
+      "responseMethods": ["share"],
+      "estimatedResponseTime": 4000,
+      "shareTimeout": 30000,
+      "features": ["text", "multimodal", "search"]
+    },
+    "grok": {
+      "name": "Grok",
+      "schemes": {
+        "ios": "grok://query?q=",
+        "android": "grok://query?q="
+      },
+      "packageId": {
+        "android": "com.x.grok",
+        "ios": "com.x.grok"
+      },
+      "responseMethods": ["share", "clipboard"],
+      "estimatedResponseTime": 3000,
+      "shareTimeout": 30000,
+      "features": ["text", "realtime", "reasoning"]
+    },
+    "pi": {
+      "name": "Inflection Pi",
+      "schemes": {
+        "ios": "pi://chat?message=",
+        "android": "pi://chat?message="
+      },
+      "packageId": {
+        "android": "com.inflection.pi",
+        "ios": "com.inflection.pi"
+      },
+      "responseMethods": ["share"],
+      "estimatedResponseTime": 4000,
+      "shareTimeout": 30000,
+      "features": ["text", "conversation"]
+    }
+  },
+  "phoneProxy": {
+    "expo": {
+      "sdkVersion": "54.0.0",
+      "template": "tabs",
+      "router": true,
+      "plugins": [
+        {
+          "name": "expo-share-intent",
+          "config": {
+            "iosActivationRules": {
+              "NSExtensionActivationSupportsText": true,
+              "NSExtensionActivationSupportsWebURLWithMaxCount": 1,
+              "NSExtensionActivationSupportsWebPageWithMaxCount": 1
+            },
+            "androidIntentFilters": ["text/plain", "text/*"],
+            "androidMainActivityAttributes": {
+              "android:launchMode": "singleTask"
+            }
+          }
+        }
+      ],
+      "permissions": {
+        "ios": ["UIBackgroundModes:fetch", "UIBackgroundModes:processing"],
+        "android": ["INTERNET", "ACCESS_NETWORK_STATE", "ACCESS_WIFI_STATE", "FOREGROUND_SERVICE"]
+      }
+    },
+    "dependencies": {
+      "core": [
+        "expo-share-intent@^2.x",
+        "expo-linking@latest",
+        "expo-clipboard@latest",
+        "expo-network@latest",
+        "@react-native-async-storage/async-storage@latest",
+        "expo-file-system@latest"
+      ],
+      "server": [
+        "express@^4.18",
+        "ws@^8.14",
+        "bonjour-service@^2.x"
+      ],
+      "utilities": [
+        "uuid@^9.0",
+        "crypto@latest"
+      ]
+    },
+    "components": {
+      "httpServer": {
+        "file": "app/services/server.ts",
+        "class": "LLMProxyServer",
+        "endpoints": [
+          {
+            "path": "/health",
+            "method": "GET",
+            "auth": false,
+            "description": "Health check and capability discovery"
+          },
+          {
+            "path": "/query",
+            "method": "POST",
+            "auth": true,
+            "body": {
+              "appId": "string",
+              "prompt": "string",
+              "context": "string?",
+              "requestId": "string?"
+            },
+            "description": "Send prompt to phone LLM app"
+          },
+          {
+            "path": "/response/:requestId",
+            "method": "GET",
+            "auth": true,
+            "streamingSSE": true,
+            "description": "Long-poll or stream response"
+          },
+          {
+            "path": "/status",
+            "method": "GET",
+            "auth": true,
+            "description": "Server status and metrics"
+          },
+          {
+            "path": "/cancel/:requestId",
+            "method": "POST",
+            "auth": true,
+            "description": "Cancel pending request"
+          },
+          {
+            "path": "/notify",
+            "method": "POST",
+            "auth": false,
+            "internal": true,
+            "description": "Internal notification from share extension"
+          }
+        ]
+      },
+      "websocketServer": {
+        "file": "app/services/server.ts",
+        "protocol": "ws",
+        "events": [
+          {
+            "type": "connected",
+            "direction": "server-to-client",
+            "payload": {
+              "clientId": "string",
+              "pendingRequests": "array"
+            }
+          },
+          {
+            "type": "request_started",
+            "direction": "server-to-client",
+            "payload": {
+              "requestId": "string",
+              "appId": "string",
+              "timestamp": "number"
+            }
+          },
+          {
+            "type": "response_received",
+            "direction": "server-to-client",
+            "payload": {
+              "requestId": "string",
+              "text": "string",
+              "timestamp": "number",
+              "source": "string"
+            }
+          },
+          {
+            "type": "request_cancelled",
+            "direction": "server-to-client",
+            "payload": {
+              "requestId": "string"
+            }
+          },
+          {
+            "type": "error",
+            "direction": "server-to-client",
+            "payload": {
+              "message": "string",
+              "code": "string"
+            }
+          }
+        ]
+      },
+      "shareExtension": {
+        "file": "app/share-extension.tsx",
+        "capabilities": [
+          "text-processing",
+          "url-extraction",
+          "ocr-screenshot",
+          "auto-forwarding",
+          "auto-close"
+        ],
+        "processingPipeline": [
+          {
+            "priority": 1,
+            "method": "direct-text",
+            "source": "shareIntent.text"
+          },
+          {
+            "priority": 2,
+            "method": "url-fetch",
+            "source": "shareIntent.webUrl"
+          },
+          {
+            "priority": 3,
+            "method": "ocr",
+            "source": "shareIntent.images[0]"
+          }
+        ],
+        "cleaningRules": [
+          {
+            "pattern": "^(ChatGPT|Perplexity|Claude|Grok):?\\s*",
+            "replace": "",
+            "description": "Remove app name prefix"
+          },
+          {
+            "pattern": "\\[\\d+\\s*chars\\]",
+            "replace": "",
+            "description": "Remove character count indicators"
+          },
+          {
+            "pattern": "\\.{3,}",
+            "replace": "...",
+            "description": "Normalize ellipsis"
+          }
+        ]
+      },
+      "stateManager": {
+        "storage": "AsyncStorage",
+        "keys": {
+          "authSecret": "auth_secret",
+          "requestPrefix": "request_",
+          "responsePrefix": "response_",
+          "pendingRequests": "pending_requests"
+        },
+        "cleanup": {
+          "staleRequestsAfter": 3600000,
+          "maxStoredResponses": 20
+        }
+      },
+      "mdnsAdvertiser": {
+        "serviceType": "_llm-proxy._tcp.local",
+        "serviceName": "LLM-Proxy-Bridge",
+        "txt": {
+          "version": "1.0.0",
+          "platform": "auto",
+          "apps": "auto-detect"
+        }
+      }
+    },
+    "ui": {
+      "mainScreen": {
+        "file": "app/(tabs)/index.tsx",
+        "sections": [
+          {
+            "title": "Server Status",
+            "fields": ["status", "ipAddress", "port", "connectedClients"]
+          },
+          {
+            "title": "Connection Mode",
+            "fields": ["usbToggle", "wifiStatus", "adbInstructions"]
+          },
+          {
+            "title": "Activity",
+            "fields": ["lastRequest", "pendingCount", "uptime"]
+          },
+          {
+            "title": "Configured Apps",
+            "display": "list",
+            "source": "llmApps"
+          },
+          {
+            "title": "Setup",
+            "fields": ["qrCode", "manualSetup"]
+          }
+        ]
+      }
+    }
+  },
+  "desktopClient": {
+    "platform": "vscode-extension",
+    "manifest": {
+      "name": "llm-proxy-bridge",
+      "displayName": "LLM Proxy Bridge",
+      "description": "Route IDE requests to phone LLM apps",
+      "version": "1.0.0",
+      "publisher": "your-publisher",
+      "engines": {
+        "vscode": "^1.80.0"
+      },
+      "categories": ["AI", "Productivity"],
+      "activationEvents": ["onStartupFinished"],
+      "contributes": {
+        "commands": [
+          {
+            "command": "llmproxy.selectPhone",
+            "title": "LLM Proxy: Select Phone"
+          },
+          {
+            "command": "llmproxy.sendQuery",
+            "title": "LLM Proxy: Send to Phone LLM"
+          },
+          {
+            "command": "llmproxy.openPanel",
+            "title": "LLM Proxy: Open Panel"
+          },
+          {
+            "command": "llmproxy.setupUSB",
+            "title": "LLM Proxy: Setup USB Connection"
+          },
+          {
+            "command": "llmproxy.cancelRequest",
+            "title": "LLM Proxy: Cancel Active Request"
+          }
+        ],
+        "keybindings": [
+          {
+            "command": "llmproxy.sendQuery",
+            "key": "ctrl+shift+l",
+            "mac": "cmd+shift+l"
+          }
+        ],
+        "viewsContainers": {
+          "activitybar": [
+            {
+              "id": "llmproxy",
+              "title": "LLM Proxy",
+              "icon": "resources/icon.svg"
+            }
+          ]
+        }
+      }
+    },
+    "dependencies": {
+      "core": [
+        "ws@^8.14",
+        "bonjour-service@^2.x",
+        "axios@^1.6"
+      ],
+      "system": [
+        "child-process-promise@^2.2"
+      ]
+    }
+  }
+}
+```
+
+If you want, next step I can show you exactly how to `import` this JSON into your Expo app or VS Code extension and wire it into the code you already wrote.
